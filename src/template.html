@@ -1,17 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <div class="container">
-      <img id="laughImg" alt="" />
-      <h3>Don't Laugh Challenge</h3>
-      <div id="joke" class="joke"></div>
-      <button id="jokeBtn" class="btn">Get Another Joke</button>
+<html lang="en" ng-app="appModo" ng-cloak>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/846dfe5163.js" crossorigin="anonymous"></script>
+  <style>
+    [ng\:cloak],
+    [ng-cloak],
+    ng-cloak {
+      display: none;
+    }
+  </style>
+  <title>Document</title>
+</head>
+
+<body>
+  <div ng-controller="mainCtrl">
+    <h1>Enter title</h1>
+    <div class="finder">
+      <input type="text" ng-model="searchValue">
+      <button ng-click="searchTitle()">Search</button>
     </div>
-  </body>
+    <div ng-show="titleSearchResult.length">
+      <h1>Results:</h1>
+      <table class="title-searched">
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Year</th>
+          <th>Category</th>
+        </tr>
+        <tr ng-repeat="title in titleSearchResult | orderBy: '-year'" ng-click="selectTitle(title.id)">
+          <td>{{$index + 1}}. </td>
+          <td ng-bind="title.name"></td>
+          <td ng-bind="title.year"></td>
+          <td ng-bind="title.type"></td>
+        </tr>
+      </table>
+    </div>
+    <div ng-if="titleSearchResult.length === 0">
+      <h1>Nothing found. Check spelling of title that you are searching.</h1>
+    </div>
+    <div class="wrapper">
+      <div ng-if="titleData" class="titleInfo">
+        <div class="title">
+          <h1>{{titleData.title}}</h1>
+          <p>{{titleData.us_rating}} ({{titleData.year}}) {{titleData.type}}</p>
+        </div>
+        <iframe ng-src="{{ generateTrustedUrl(titleData.trailer) }}" frameborder="0" allowfullscreen
+          ng-show="titleData.trailer"></iframe>
+        <h2>Critic score: <span>{{titleData.critic_score}}</span></h2>
+        <h2>User rating: <span>{{titleData.user_rating}}</span></h2>
+        <h3>Time: <span>{{titleData.runtime_minutes}}</span></h3>
+        <h3>Release date: <span>{{titleData.release_date}}</span></h3>
+        <p>{{titleData.plot_overview}}</p>
+        <h1 ng-show="seasonsData">Seasons</h1>
+      </div>
+      <div class="seasonInfo" ng-repeat="season in seasonsData | orderBy: 'number'">
+        <h2>{{season.name}}</h2>
+        <h3>Episodes: {{season.episode_count}}</h3>
+        <h3>Release date: {{season.air_date}}</h3>
+        <p>{{season.overview}}</p>
+        <img ng-src={{season.poster_url}} alt="Season poster">
+        <h1>Episodes</h1>
+        <div class="episodesInfo"
+          ng-repeat="episode in episodesData | filter:{season_number: season.number} | orderBy: 'episode_number'">
+          <img ng-show="episode.thumbnail_url" ng-src={{episode.thumbnail_url}} alt="Episode picture">
+          <h2><span>s{{episode.season_number > 9
+              ? episode.season_number
+              : '0' + episode.season_number}}e{{episode.episode_number > 9
+              ? episode.episode_number
+              : '0' + episode.episode_number}}</span> {{episode.name}}</h2>
+          <h3>Release date: {{episode.release_date}}</h3>
+          <h3>Runtime: {{episode.runtime_minutes}} min</h3>
+          <p>{{episode.overview}}</p>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <p>&copy; {{getYear}} Adam Modzelewski || Streaming data powered by <a href="http://www.watchmode.com"
+          target="_blank">Watchmode.com</a>
+      </p>
+    </footer>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</body>
+
 </html>
